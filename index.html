@@ -484,16 +484,17 @@
 
             setupEventListeners() {
                 const scanInput = document.getElementById('scanInput');
+
                 scanInput.addEventListener('input', (e) => {
                     const value = app.normalizeCode(e.target.value);
-                    const pattern = /\^R\d{13}$/;
-                    if (pattern.test(value)) {
+                    if (value.length >= 5) {
                         setTimeout(() => {
                             app.addTag(value);
                             scanInput.value = '';
                         }, 100);
                     }
                 });
+                
                 scanInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
                         e.preventDefault();
@@ -596,7 +597,7 @@
                             const ruta = this.normalizeCode(row[idxRuta]);
 
                             // Validar formato de handlingUnit
-                            if (handlingUnit && handlingUnit.match(/\^R\d{13}$/)) {
+                            if (handlingUnit) {
                                 this.importedList.push({
                                     referencia: referencia || 'N/A',
                                     handlingUnit: handlingUnit,
