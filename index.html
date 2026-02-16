@@ -552,12 +552,22 @@
                             return;
                         }
 
-                        const headerRow = jsonData[0].map(h => h || '').toString().toLowerCase().trim();
+                        // Asegurar que la primera fila sea un array
+                        const rawHeader = jsonData[0];
+                        if (!Array.isArray(rawHeader)) {
+                            console.log('Encabezado no es un array, valor:', rawHeaderRow);
+                            this.showAlert('⚠️ Formato de encabezado no reconocido en la hoja "Etiquetas"', 'error', 'import');
+                            return;
+                        }
+
+                        // Normalizar encabezados:
+                        const headerRow = rawHeaderRow.map(h => h || '').toString().toLowerCase().trim();
+                        console.log('Encabezados normalizados:', headerRow);
 
                         // 3) Buscar índices de columnas clave
-                        const idxReferencia = headerRow.findIndex(col => col.includes('referencia'));
-                        const idxHandlingUnit = headerRow.findIndex(col => col.includes('handling unit'));
-                        const idxRuta = headerRow.findIndex(col => col.includes('ruta'));
+                        const idxReferencia = headerRow.indexOf('referencia');
+                        const idxHandlingUnit = headerRow.indexOf('handling unit');
+                        const idxRuta = headerRow.indexOf('ruta');
 
                         if (idxReferencia === -1 || idxHandlingUnit === -1 || idxRuta === -1) {
                             this.showAlert('⚠️ No se encontraron las columnas "Handling Unit", "Referencia" y/o "Ruta"', 'error', 'import');
