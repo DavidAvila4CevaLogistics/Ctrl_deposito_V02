@@ -486,7 +486,7 @@
                 const scanInput = document.getElementById('scanInput');
                 scanInput.addEventListener('input', (e) => {
                     const value = app.normalizeCode(e.target.value);
-                    const pattern = /^R\d{13}$/;
+                    const pattern = /\^R\d{13}$/;
                     if (pattern.test(value)) {
                         setTimeout(() => {
                             app.addTag(value);
@@ -547,30 +547,37 @@
                         // 2) Leer a matriz (primera fila = encabezados)
                         const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-                        if (jsonData.length === 0) {
-                            this.showAlert('⚠️ La hoja "Etiquetas" está vacía', 'error', 'import');
+                        if (!Array.isArray(jsonData) || jsonData.length === 0) {
+                                this.showAlert('⚠️ La hoja "Etiquetas" está vacía o no tiene filas válidas', 'error', 'import');
+                                return;
+                        }
+                        // Asegurarnos de que la primera fila sea un array
+                        const rawHeaderRow = jsonData[0];
+                        if (!Array.isArray(rawHeaderRow)) {
+                            console.log('Header row no es un array, valor:', rawHeaderRow);
+                            this.showAlert('⚠️ No se pudieron leer correctamente los encabezados de la hoja "Etiquetas"', 'error', 'import');
                             return;
                         }
-
-                        // Asegurar que la primera fila sea un array
-                        const rawHeader = jsonData[0];
-                        if (!Array.isArray(rawHeader)) {
-                            console.log('Encabezado no es un array, valor:', rawHeaderRow);
-                            this.showAlert('⚠️ Formato de encabezado no reconocido en la hoja "Etiquetas"', 'error', 'import');
-                            return;
-                        }
-
-                        // Normalizar encabezados:
-                        const headerRow = rawHeaderRow.map(h => h || '').toString().toLowerCase().trim();
-                        console.log('Encabezados normalizados:', headerRow);
-
-                        // 3) Buscar índices de columnas clave
+                        
+                        // Normalizar encabezados
+                        const headerRow = rawHeaderRow.map(h =>
+                            (h || '').toString().toLowerCase().trim()
+                        );
+                        console.log('Encabezados detectados:', headerRow);
+                        
+                        // Buscar índices de las columnas
                         const idxReferencia = headerRow.indexOf('referencia');
-                        const idxHandlingUnit = headerRow.indexOf('handling unit');
+                        const idxHandlingUnit = headerRow.findIndex(col =>
+                            col === 'handling unit' || col === 'handling_unit'
+                        );
                         const idxRuta = headerRow.indexOf('ruta');
-
+                        
                         if (idxReferencia === -1 || idxHandlingUnit === -1 || idxRuta === -1) {
-                            this.showAlert('⚠️ No se encontraron las columnas "Handling Unit", "Referencia" y/o "Ruta"', 'error', 'import');
+                            this.showAlert(
+                                `⚠️ La hoja "Etiquetas" debe tener las columnas "Referencia", "Handling Unit" y "Ruta" (exactamente esos textos en la fila de encabezado).`,
+                                'error',
+                                'import'
+                            );
                             return;
                         }
 
@@ -589,7 +596,7 @@
                             const ruta = this.normalizeCode(row[idxRuta]);
 
                             // Validar formato de handlingUnit
-                            if (handlingUnit && handlingUnit.match(/^R\d{13}$/)) {
+                            if (handlingUnit && handlingUnit.match(/\^R\d{13}$/)) {
                                 this.importedList.push({
                                     referencia: referencia || 'N/A',
                                     handlingUnit: handlingUnit,
