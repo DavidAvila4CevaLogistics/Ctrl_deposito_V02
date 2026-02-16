@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1a4d7a">
+    <title>Control de Etiquetas_V03</title>
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiWmVicmEgU2Nhbm5lciIsInNob3J0X25hbWUiOiJTY2FubmVyIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMxYTRkN2EiLCJ0aGVtZV9jb2xvciI6IiMxYTRkN2EifQ==">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, #1a4d7a 0%, #2d6fa8 50%, #4a8bc2 100%);
+            min-height: 100vh;
+            color: #fff;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .card {
+            background: rgba(255,255,255,0.13);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.13);
+            color: #fff;
+        }
+        .btn {
+            width: 100%;
+            min-height: 56px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+            text-align: center;
+            background: linear-gradient(180deg, #d32f2f 0%, #b71c1c 100%);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(211,47,47,0.3);
+            touch-action: manipulation;
+        }
+        .btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 4px rgba(211,47,47,0.4);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background: linear-gradient(180deg, #666 0%, #444 100%);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .btn-success {
+            background: linear-gradient(180deg, #43a047 0%, #2e7d32 100%);
+            box-shadow: 0 2px 8px rgba(67, 160, 71, 0.3);
+        }
+        .btn-info {
+            background: linear-gradient(180deg, #0288d1 0%, #01579b 100%);
+            box-shadow: 0 2px 8px rgba(2, 136, 209, 0.3);
+        }
+        .input-group label,
+        .stat-label,
+        .empty-state p,
+        .tag-item,
+        #menuView .card h2,
+        #deleteView .card h2,
+        #scannerView .card h2 {
+            color: #fff;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-wrapper {
+            display: flex;
+            gap: 8px;
+        }
+        input[type="text"], input[type="file"] {
+            flex: 1;
+            min-height: 56px;
+            padding: 16px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            background: #224a76;
+            color: #fff;
+        }
+        input[type="file"] {
+            padding: 12px;
+            cursor: pointer;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #fff;
+        }
+        input[type="text"]::placeholder {
+            color: #bbdefb !important;
+        }
+        .btn-validate {
+            min-width: 120px;
+            margin-bottom: 0;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #1a4d7a 0%, #2d6fa8 100%);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            color: #fff;
+        }
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 12px;
+            opacity: 1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .two-lists-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .list-section {
+            background: #273957;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .list-section h3 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #fff;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+        }
+        .tag-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .tag-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #224a76;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            color: #fff;
+        }
+        .tag-item.validated {
+            background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%);
+            border: 2px solid #66bb6a;
+        }
+        .tag-item.surplus {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            border: 2px solid #ffb74d;
+        }
+        .tag-code {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .tag-check {
+            font-size: 18px;
+            color: #fff;
+        }
+        .tag-delete {
+            min-height: 36px;
+            min-width: 36px;
+            padding: 8px;
+            background: linear-gradient(180deg, #d32f2f 0%, #b71c1c 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .alert {
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-weight: 600;
+            text-align: center;
+            animation: slideIn 0.3s ease;
+            color: #fff;
+        }
+        .alert-error {
+            background: #c62828;
+            border: 2px solid #ef5350;
+        }
+        .alert-success {
+            background: #43a047;
+            border: 2px solid #66bb6a;
+        }
+        .alert-info {
+            background: #0288d1;
+            border: 2px solid #4fc3f7;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .hidden {
+            display: none !important;
+        }
+        .menu-grid {
+            display: grid;
+            gap: 12px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #fff;
+        }
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 12px;
+            }
+            .card {
+                padding: 16px;
+            }
+            .stat-value {
+                font-size: 28px;
+            }
+            .two-lists-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏷️ CEVA Logistics</h1>
+            <p>Control_Etiquetas RDC-John Deere v03</p>
+        </div>
+
+        <!-- Vista Menu -->
+        <div id="menuView" class="card">
+            <h2 style="margin-bottom: 24px;">Menú Principal</h2>
+            <div class="menu-grid">
+                <button class="btn btn-info" onclick="app.showImportList()">📂 Importar Lista</button>
+                <button class="btn" onclick="app.showScanner()">📱 Empezar a Escanear</button>
+                <button class="btn btn-success" onclick="app.exportToExcel()" id="btnExportMenu">📊 Exportar Resultado</button>
+                <button class="btn btn-secondary" onclick="app.clearAll()">🗑️ Limpiar Resultado</button>
+                <button class="btn btn-secondary" onclick="app.showDeleteView()">❌ Eliminar Etiqueta</button>
+            </div>
+        </div>
+
+        <!-- Vista Importar Lista -->
+        <div id="importView" class="hidden">
+            <div class="card">
+                <h2 style="margin-bottom: 24px;">📂 Importar Lista de Códigos</h2>
+                <div id="importAlertContainer"></div>
+
+                <div class="stats" id="importStats" style="display: none;">
+                    <div class="stat-card">
+                        <div class="stat-value" id="importedTotal">0</div>
+                        <div class="stat-label">Códigos Importados</div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Seleccionar archivo Excel (.xlsx)</label>
+                    <input
+                        type="file"
+                        id="importFileInput"
+                        accept=".xlsx,.xls"
+                        onchange="app.handleImportFile(event)">
+                </div>
+
+                <div class="tag-list" id="importedList" style="display: none; max-height: 300px; background: #273957; border-radius: 8px; padding: 12px; margin-top: 16px;">
+                </div>
+
+                <button class="btn btn-secondary" onclick="app.showMenu()">↩️ Volver al Menú</button>
+            </div>
+        </div>
+
+        <!-- Vista Scanner -->
+        <div id="scannerView" class="hidden">
+            <div class="card">
+                <div id="alertContainer"></div>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="validatedCounter">0/0</div>
+                        <div class="stat-label">Validadas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="surplusCounter">0</div>
+                        <div class="stat-label">Sobrantes</div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Escanear o Ingresar Código</label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="scanInput"
+                            placeholder="R4600100005719"
+                            autocomplete="off"
+                            autocapitalize="characters">
+                        <button class="btn btn-validate" onclick="app.validateManual()">✓</button>
+                    </div>
+                </div>
+
+                <div class="two-lists-container">
+                    <div class="list-section">
+                        <h3>📋 Lista Importada</h3>
+                        <div class="tag-list" id="importedTagList">
+                            <div class="empty-state">
+                                <svg fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 9a1 1 0 012 0v4a1 1 0 11-2 0V9zm1-5a1 1 0 100 2 1 1 0 000-2z"/>
+                                </svg>
+                                <p>No hay lista importada</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="list-section">
+                        <h3>⚠️ Sobrantes</h3>
+                        <div class="tag-list" id="surplusTagList">
+                            <div class="empty-state">
+                                <svg fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 9a1 1 0 012 0v4a1 1 0 11-2 0V9zm1-5a1 1 0 100 2 1 1 0 000-2z"/>
+                                </svg>
+                                <p>No hay sobrantes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <button class="btn btn-success" onclick="app.exportToExcel()">📊 Exportar a Excel</button>
+                <button class="btn btn-secondary" onclick="app.showMenu()">↩️ Volver al Menú</button>
+            </div>
+        </div>
+
+        <!-- Vista Eliminar -->
+        <div id="deleteView" class="hidden">
+            <div class="card">
+                <h2 style="margin-bottom: 24px;">Eliminar Etiqueta</h2>
+                <div class="input-group">
+                    <label>Código a Eliminar</label>
+                    <input
+                        type="text"
+                        id="deleteInput"
+                        placeholder="R4600100005719"
+                        autocomplete="off"
+                        autocapitalize="characters">
+                </div>
+                <button class="btn" onclick="app.deleteTag()">❌ Eliminar</button>
+                <button class="btn btn-secondary" onclick="app.showMenu()">↩️ Volver al Menú</button>
+                <div class="tag-list" id="deleteTagList" style="margin-top: 24px; max-height: 300px; background: #273957; border-radius: 8px; padding: 12px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SheetJS Library -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script>
+        const app = {
+            importedList: [],
+            validatedTags: [],
+            surplusTags: [],
+            lastAddLock: false,
+
+            normalizeCode(str) {
+                return (str || "").trim().replace(/\r/g, "").replace(/\n/g, "").toUpperCase();
+            },
+
+            init() {
+                this.loadFromStorage();
+                this.setupEventListeners();
+                this.updateUI();
+                this.logAction('APP_INIT', 'Aplicación inicializada');
+            },
+
+            loadFromStorage() {
+                try {
+                    const stored = localStorage.getItem('zebraScanner_v03');
+                    if (stored) {
+                        const data = JSON.parse(stored);
+                        this.importedList = data.importedList || [];
+                        this.validatedTags = data.validatedTags || [];
+                        this.surplusTags = data.surplusTags || [];
+                        console.log('Estado recuperado desde localStorage');
+                    }
+                } catch (e) {
+                    console.error('Error al cargar desde localStorage:', e);
+                }
+            },
+
+            saveToStorage() {
+                try {
+                    const data = {
+                        importedList: this.importedList,
+                        validatedTags: this.validatedTags,
+                        surplusTags: this.surplusTags,
+                        lastUpdate: new Date().toISOString()
+                    };
+                    localStorage.setItem('zebraScanner_v03', JSON.stringify(data));
+                } catch (e) {
+                    console.error('Error al guardar en localStorage:', e);
+                }
+            },
+
+            logAction(action, details) {
+                try {
+                    const logs = JSON.parse(localStorage.getItem('zebraScanner_logs') || '[]');
+                    logs.push({
+                        timestamp: new Date().toISOString(),
+                        action: action,
+                        details: details
+                    });
+                    if (logs.length > 500) logs.shift();
+                    localStorage.setItem('zebraScanner_logs', JSON.stringify(logs));
+                } catch (e) {
+                    console.error('Error al registrar acción:', e);
+                }
+            },
+
+            setupEventListeners() {
+                const scanInput = document.getElementById('scanInput');
+                scanInput.addEventListener('input', (e) => {
+                    const value = app.normalizeCode(e.target.value);
+                    const pattern = /^R\d{13}$/;
+                    if (pattern.test(value)) {
+                        setTimeout(() => {
+                            app.addTag(value);
+                            scanInput.value = '';
+                        }, 100);
+                    }
+                });
+
+                scanInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        app.validateManual();
+                    }
+                });
+            },
+
+            focusInput() {
+                setTimeout(() => {
+                    const scanInput = document.getElementById('scanInput');
+                    if (scanInput && !document.getElementById('scannerView').classList.contains('hidden')) {
+                        scanInput.focus();
+                    }
+                }, 100);
+            },
+
+            handleImportFile(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                this.showAlert('📂 Procesando archivo...', 'info', 'import');
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                        let columnIndex = -1;
+                        if (jsonData.length > 0) {
+                            const headerRow = jsonData[0];
+                            columnIndex = headerRow.findIndex(col =>
+                                col && col.toString().toLowerCase().includes('handling unit')
+                            );
+                        }
+
+                        if (columnIndex === -1) {
+                            this.showAlert('⚠️ No se encontró la columna "Handling Unit"', 'error', 'import');
+                            return;
+                        }
+
+                        this.importedList = [];
+                        for (let i = 1; i < jsonData.length; i++) {
+                            const row = jsonData[i];
+                            if (row && row[columnIndex]) {
+                                const code = this.normalizeCode(row[columnIndex].toString());
+                                if (code && code.match(/^R\d{13}$/)) {
+                                    this.importedList.push(code);
+                                }
+                            }
+                        }
+
+                        // Reset validated and surplus lists
+                        this.validatedTags = [];
+                        this.surplusTags = [];
+
+                        this.saveToStorage();
+                        this.logAction('LIST_IMPORTED', `Lista importada: ${this.importedList.length} códigos`);
+                        this.showAlert(`✓ Lista importada: ${this.importedList.length} códigos`, 'success', 'import');
+
+                        document.getElementById('importStats').style.display = 'grid';
+                        document.getElementById('importedTotal').textContent = this.importedList.length;
+                        document.getElementById('importedList').style.display = 'block';
+                        this.updateImportedListView();
+
+                    } catch (error) {
+                        console.error('Error al procesar archivo:', error);
+                        this.showAlert('❌ Error al procesar el archivo', 'error', 'import');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            },
+
+            updateImportedListView() {
+                const container = document.getElementById('importedList');
+                if (this.importedList.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><p>No hay códigos importados</p></div>';
+                    return;
+                }
+
+                const displayList = this.importedList.slice(0, 20);
+                container.innerHTML = displayList.map(code => `
+                    <div class="tag-item">
+                        <span class="tag-code">${code}</span>
+                    </div>
+                `).join('');
+
+                if (this.importedList.length > 20) {
+                    container.innerHTML += `<div class="empty-state"><p>... y ${this.importedList.length - 20} códigos más</p></div>`;
+                }
+            },
+
+            addTag(code) {
+                code = this.normalizeCode(code);
+                if (!code) return;
+
+                if (this.lastAddLock) return;
+                this.lastAddLock = true;
+                setTimeout(() => { this.lastAddLock = false; }, 400);
+
+                // Check if already validated or in surplus
+                if (this.validatedTags.includes(code) || this.surplusTags.includes(code)) {
+                    this.showAlert('⚠️ ETIQUETA YA CONTROLADA', 'error');
+                    this.playErrorSound();
+                    this.focusInput();
+                    return;
+                }
+
+                // Check if code is in imported list
+                if (this.importedList.includes(code)) {
+                    // Add to validated
+                    this.validatedTags.push(code);
+                    this.saveToStorage();
+                    this.logAction('TAG_VALIDATED', `Etiqueta validada: ${code}`);
+                    this.showAlert('✓ Etiqueta validada', 'success');
+                    this.playSuccessSound();
+                } else {
+                    // Add to surplus
+                    this.surplusTags.push(code);
+                    this.saveToStorage();
+                    this.logAction('TAG_SURPLUS', `Etiqueta sobrante: ${code}`);
+                    this.showAlert('⚠️ Etiqueta SOBRANTE (no está en la lista)', 'error');
+                    this.playErrorSound();
+                }
+
+                this.updateUI();
+                this.focusInput();
+            },
+
+            validateManual() {
+                const scanInput = document.getElementById('scanInput');
+                const value = this.normalizeCode(scanInput.value);
+
+                if (!value) {
+                    this.showAlert('⚠️ Ingrese un código', 'error');
+                    return;
+                }
+
+                this.addTag(value);
+                scanInput.value = '';
+            },
+
+            deleteTag() {
+                const deleteInput = document.getElementById('deleteInput');
+                const code = this.normalizeCode(deleteInput.value);
+
+                if (!code) {
+                    this.showAlert('⚠️ Ingrese un código a eliminar', 'error');
+                    return;
+                }
+
+                let found = false;
+
+                // Check in validated tags
+                let index = this.validatedTags.indexOf(code);
+                if (index !== -1) {
+                    this.validatedTags.splice(index, 1);
+                    found = true;
+                }
+
+                // Check in surplus tags
+                index = this.surplusTags.indexOf(code);
+                if (index !== -1) {
+                    this.surplusTags.splice(index, 1);
+                    found = true;
+                }
+
+                if (!found) {
+                    this.showAlert('⚠️ Etiqueta no encontrada', 'error');
+                    return;
+                }
+
+                this.saveToStorage();
+                this.logAction('TAG_DELETED', `Etiqueta eliminada: ${code}`);
+                this.showAlert('✓ Etiqueta eliminada', 'success');
+                deleteInput.value = '';
+                this.updateUI();
+                this.updateDeleteView();
+            },
+
+            clearAll() {
+                const totalTags = this.validatedTags.length + this.surplusTags.length;
+                if (totalTags === 0 && this.importedList.length === 0) {
+                    this.showAlert('⚠️ No hay datos para limpiar', 'error');
+                    return;
+                }
+
+                if (confirm(`¿Está seguro de eliminar todos los datos?`)) {
+                    this.importedList = [];
+                    this.validatedTags = [];
+                    this.surplusTags = [];
+                    this.saveToStorage();
+                    this.logAction('CLEAR_ALL', 'Todos los datos eliminados');
+                    this.updateUI();
+                    this.showAlert('✓ Todos los datos eliminados', 'success');
+                }
+            },
+
+            exportToExcel() {
+                const totalTags = this.validatedTags.length + this.surplusTags.length;
+                if (totalTags === 0) {
+                    this.showAlert('⚠️ No hay etiquetas para exportar', 'error');
+                    return;
+                }
+
+                const wb = XLSX.utils.book_new();
+
+                // Sheet: Resumen
+                const summaryData = [
+                    ['RESUMEN DE CONTROL'],
+                    ['Fecha', new Date().toLocaleString('es-AR')],
+                    [''],
+                    ['Códigos Importados', this.importedList.length],
+                    ['Etiquetas Validadas', this.validatedTags.length],
+                    ['Etiquetas Sobrantes', this.surplusTags.length],
+                    ['Total Escaneadas', totalTags],
+                    [''],
+                    ['Faltantes', this.importedList.length - this.validatedTags.length]
+                ];
+                const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+                XLSX.utils.book_append_sheet(wb, wsSummary, 'Resumen');
+
+                // Sheet: Validadas
+                if (this.validatedTags.length > 0) {
+                    const validatedData = this.validatedTags.map((tag, i) => ({
+                        'N°': i + 1,
+                        'Código': tag,
+                        'Estado': 'Validada'
+                    }));
+                    const wsValidated = XLSX.utils.json_to_sheet(validatedData);
+                    XLSX.utils.book_append_sheet(wb, wsValidated, 'Validadas');
+                }
+
+                // Sheet: Sobrantes
+                if (this.surplusTags.length > 0) {
+                    const surplusData = this.surplusTags.map((tag, i) => ({
+                        'N°': i + 1,
+                        'Código': tag,
+                        'Estado': 'Sobrante'
+                    }));
+                    const wsSurplus = XLSX.utils.json_to_sheet(surplusData);
+                    XLSX.utils.book_append_sheet(wb, wsSurplus, 'Sobrantes');
+                }
+
+                // Sheet: Faltantes
+                const missing = this.importedList.filter(code => !this.validatedTags.includes(code));
+                if (missing.length > 0) {
+                    const missingData = missing.map((tag, i) => ({
+                        'N°': i + 1,
+                        'Código': tag,
+                        'Estado': 'Faltante'
+                    }));
+                    const wsMissing = XLSX.utils.json_to_sheet(missingData);
+                    XLSX.utils.book_append_sheet(wb, wsMissing, 'Faltantes');
+                }
+
+                const fecha = new Date().toISOString().split('T')[0];
+                const filename = `Control_Etiquetas_v03_${fecha}.xlsx`;
+                XLSX.writeFile(wb, filename);
+
+                this.logAction('EXPORT_EXCEL', `Exportación: ${filename}`);
+                this.showAlert(`✓ Archivo exportado: ${filename}`, 'success');
+            },
+
+            updateUI() {
+                // Update counters
+                document.getElementById('validatedCounter').textContent = 
+                    `${this.validatedTags.length}/${this.importedList.length}`;
+                document.getElementById('surplusCounter').textContent = this.surplusTags.length;
+
+                // Update imported list in scanner view
+                this.updateImportedTagListInScanner();
+
+                // Update surplus list
+                this.updateSurplusTagList();
+
+                // Update export button
+                const btnExportMenu = document.getElementById('btnExportMenu');
+                if (btnExportMenu) {
+                    const totalTags = this.validatedTags.length + this.surplusTags.length;
+                    btnExportMenu.disabled = totalTags === 0;
+                }
+            },
+
+            updateImportedTagListInScanner() {
+                const container = document.getElementById('importedTagList');
+
+                if (this.importedList.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 9a1 1 0 012 0v4a1 1 0 11-2 0V9zm1-5a1 1 0 100 2 1 1 0 000-2z"/>
+                            </svg>
+                            <p>No hay lista importada</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.importedList.map(code => {
+                    const isValidated = this.validatedTags.includes(code);
+                    const itemClass = isValidated ? 'tag-item validated' : 'tag-item';
+                    const checkMark = isValidated ? '<span class="tag-check">✓</span>' : '';
+
+                    return `
+                        <div class="${itemClass}">
+                            <span class="tag-code">${code}</span>
+                            ${checkMark}
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            updateSurplusTagList() {
+                const container = document.getElementById('surplusTagList');
+
+                if (this.surplusTags.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 9a1 1 0 012 0v4a1 1 0 11-2 0V9zm1-5a1 1 0 100 2 1 1 0 000-2z"/>
+                            </svg>
+                            <p>No hay sobrantes</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.surplusTags.map(code => `
+                    <div class="tag-item surplus">
+                        <span class="tag-code">${code}</span>
+                    </div>
+                `).join('');
+            },
+
+            updateDeleteView() {
+                const container = document.getElementById('deleteTagList');
+                const allTags = [...this.validatedTags, ...this.surplusTags];
+
+                if (allTags.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>No hay etiquetas registradas</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = allTags.reverse().map(code => {
+                    const isValidated = this.validatedTags.includes(code);
+                    const itemClass = isValidated ? 'tag-item validated' : 'tag-item surplus';
+                    const badge = isValidated ? 'Validada' : 'Sobrante';
+
+                    return `
+                        <div class="${itemClass}">
+                            <span class="tag-code">${code} <small>(${badge})</small></span>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            showAlert(message, type, viewId = 'scanner') {
+                const containerMap = {
+                    'scanner': 'alertContainer',
+                    'import': 'importAlertContainer'
+                };
+                const containerId = containerMap[viewId] || 'alertContainer';
+                const container = document.getElementById(containerId);
+                if (!container) return;
+
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type}`;
+                alert.textContent = message;
+                container.innerHTML = '';
+                container.appendChild(alert);
+
+                setTimeout(() => {
+                    alert.remove();
+                }, 3000);
+            },
+
+            playSuccessSound() {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            },
+
+            playErrorSound() {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.frequency.value = 300;
+                oscillator.type = 'sawtooth';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            },
+
+            showMenu() {
+                document.getElementById('menuView').classList.remove('hidden');
+                document.getElementById('importView').classList.add('hidden');
+                document.getElementById('scannerView').classList.add('hidden');
+                document.getElementById('deleteView').classList.add('hidden');
+                this.logAction('VIEW_MENU', 'Vista menú mostrada');
+            },
+
+            showImportList() {
+                document.getElementById('menuView').classList.add('hidden');
+                document.getElementById('importView').classList.remove('hidden');
+                document.getElementById('scannerView').classList.add('hidden');
+                document.getElementById('deleteView').classList.add('hidden');
+
+                if (this.importedList.length > 0) {
+                    document.getElementById('importStats').style.display = 'grid';
+                    document.getElementById('importedTotal').textContent = this.importedList.length;
+                    document.getElementById('importedList').style.display = 'block';
+                    this.updateImportedListView();
+                }
+
+                this.logAction('VIEW_IMPORT', 'Vista importar mostrada');
+            },
+
+            showScanner() {
+                if (this.importedList.length === 0) {
+                    this.showAlert('⚠️ Primero debe importar una lista de códigos', 'error');
+                    return;
+                }
+
+                document.getElementById('menuView').classList.add('hidden');
+                document.getElementById('importView').classList.add('hidden');
+                document.getElementById('scannerView').classList.remove('hidden');
+                document.getElementById('deleteView').classList.add('hidden');
+                this.updateUI();
+                this.focusInput();
+                this.logAction('VIEW_SCANNER', 'Vista scanner mostrada');
+            },
+
+            showDeleteView() {
+                document.getElementById('menuView').classList.add('hidden');
+                document.getElementById('importView').classList.add('hidden');
+                document.getElementById('scannerView').classList.add('hidden');
+                document.getElementById('deleteView').classList.remove('hidden');
+                this.updateDeleteView();
+                document.getElementById('deleteInput').focus();
+                this.logAction('VIEW_DELETE', 'Vista eliminar mostrada');
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('data:application/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgKCkgPT4gc2VsZi5za2lwV2FpdGluZygpKTs=')
+                    .catch(() => {});
+            });
+        }
+    </script>
+</body>
+</html>
