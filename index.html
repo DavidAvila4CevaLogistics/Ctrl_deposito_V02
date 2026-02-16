@@ -518,59 +518,78 @@
                 this.showAlert('📂 Procesando archivo...', 'info', 'import');
 
                 const reader = new FileReader();
+
                 reader.onload = (e) => {
                     try {
                         const data = new Uint8Array(e.target.result);
                         const workbook = XLSX.read(data, { type: 'array' });
-                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                        const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
-                        let handlingUnitIndex = -1;
-                        let referenciaIndex = -1;
-                        let rutaIndex = -1;
-
-                        if (jsonData.length > 0) {
-                            const headerRow = jsonData[0];
-                            handlingUnitIndex = headerRow.findIndex(col =>
-                                col && col.toString().toLowerCase().includes('handling unit')
-                            );
-                            referenciaIndex = headerRow.findIndex(col =>
-                                col && col.toString().toLowerCase().includes('referencia')
-                            );
-                            rutaIndex = headerRow.findIndex(col =>
-                                col && col.toString().toLowerCase().includes('ruta')
-                            );
-                        }
-
-                        if (handlingUnitIndex === -1) {
-                            this.showAlert('⚠️ No se encontró la columna "Handling Unit"', 'error', 'import');
+                        // 1) Tomar siempre la hoja del libro "Etiquetas"
+                        const sheetName = workbook.SheetNames.find(name => name.toLowerCase() === 'etiquetas');
+                        if (!sheetName) {
+                            this.showAlert('⚠️ No se encontró la hoja "Etiquetas"', 'error', 'import');
                             return;
                         }
 
+                        const sheet = workbook.Sheets[sheetName];
+
+                        // 2) Leer a matriz (primera fila = encabezados)
+                        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                        if (jsonData.length === 0) {
+                            this.showAlert('⚠️ La hoja "Etiquetas" está vacía', 'error', 'import');
+                            return;
+                        }
+
+                        const headerRow = jsonData[0].map(h => h || '').toString().toLowerCase().trim();
+
+                        // 3) Buscar índices de columnas clave
+                        const idxReferencia = headerRow.findIndex(col => col.includes('referencia'));
+                        const idxHandlingUnit = headerRow.findIndex(col => col.includes('handling unit'));
+                        const idxRuta = headerRow.findIndex(col => col.includes('ruta'));
+
+                        if (idxReferencia === -1 || idxHandlingUnit === -1 || idxRuta === -1) {
+                            this.showAlert('⚠️ No se encontraron las columnas "Handling Unit", "Referencia" y/o "Ruta"', 'error', 'import');
+                            return;
+                        }
+
+                        //4) Reiniciar estructura: ahora importedList será una lista de objetos
+                        // {referencia, handlingUnit, ruta}
                         this.importedList = [];
+                        this.validatedTags = [];
+                        this.surplusTags = [];
+
                         for (let i = 1; i < jsonData.length; i++) {
                             const row = jsonData[i];
-                            if (row && row[handlingUnitIndex]) {
-                                const code = this.normalizeCode(row[handlingUnitIndex].toString());
-                                if (code && code.match(/^R\d{13}$/)) {
-                                    const item = {
-                                        handlingUnit: code,
-                                        referencia: referenciaIndex !== -1 && row[referenciaIndex] ? row[referenciaIndex].toString() : 'N/A',
-                                        ruta: rutaIndex !== -1 && row[rutaIndex] ? row[rutaIndex].toString() : 'N/A'
-                                    };
-                                    this.importedList.push(item);
-                                }
+                            if (!row) continue;
+
+                            const referencia = this.normalizeCode(row[idxReferencia]);
+                            const handlingUnit = this.normalizeCode(row[idxHandlingUnit]);
+                            const ruta = this.normalizeCode(row[idxRuta]);
+
+                            // Validar formato de handlingUnit
+                            if (handlingUnit && handlingUnit.match(/^R\d{13}$/)) {
+                                this.importedList.push({
+                                    referencia: referencia || 'N/A',
+                                    handlingUnit: handlingUnit,
+                                    ruta: ruta || 'N/A'
+                                });
                             }
                         }
 
-                        this.validatedTags = [];
-                        this.surplusTags = [];
                         this.saveToStorage();
-                        this.logAction('LIST_IMPORTED', `Lista importada: ${this.importedList.length} códigos`);
-                        this.showAlert(`✓ Lista importada: ${this.importedList.length} códigos`, 'success', 'import');
+                        this.logAction('LIST_IMPORTED', `Lista importada: ${this.importedList.length} registros`);
+
+                        this.showAlert(
+                            `✓ Lista importada: ${this.importedList.length} códigos`,
+                            'success',
+                            'import'
+                        );
+
                         document.getElementById('importStats').style.display = 'grid';
                         document.getElementById('importedTotal').textContent = this.importedList.length;
                         document.getElementById('importedList').style.display = 'block';
+
                         this.updateImportedListView();
 
                     } catch (error) {
@@ -578,6 +597,7 @@
                         this.showAlert('❌ Error al procesar el archivo', 'error', 'import');
                     }
                 };
+
                 reader.readAsArrayBuffer(file);
             },
 
