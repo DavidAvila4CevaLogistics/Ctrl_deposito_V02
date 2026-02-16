@@ -525,7 +525,7 @@
                         const workbook = XLSX.read(data, { type: 'array' });
 
                         // 1) Tomar siempre la hoja del libro "Etiquetas"
-                        const sheetName = workbook.SheetNames.find(name => name.toLowerCase() === 'etiquetas');
+                        const sheetName = workbook.SheetNames.find(name => name.toLowerCase() === 'Etiquetas');
                         if (!sheetName) {
                             this.showAlert('⚠️ No se encontró la hoja "Etiquetas"', 'error', 'import');
                             return;
